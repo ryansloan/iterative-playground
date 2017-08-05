@@ -1,0 +1,294 @@
+<html>
+<head>
+	<style>
+	body {
+		 font-family: "Helvetica Neue", "Calibri","Arial", sans-serif;
+		 color: #444444;
+	}
+	#problemArea {
+		max-width:800px;
+	}
+	#workingArea{
+		display:inline-block;
+	}
+	#dashboardArea{
+		display:inline-block;
+		min-width:120px;
+		max-width:320px;
+		vertical-align: top;
+	}
+	#dialog {
+		display:none;
+	}
+	#blocklyDiv {
+		height: 652px;
+		min-width:720px;
+		max-width:800px;
+	}
+	#avatar {
+		position:absolute;
+		top:-16px;
+		left:-16px;
+		z-index:2;
+		max-width:40px;
+  		max-height:95px;
+  		width: auto;
+  		height: auto;
+
+	}
+	h1 {
+		font-size: 16px;
+		display:inline-block;
+	}
+	.runButton {
+		font-size: 16px;	
+		margin-top: 4px;
+		min-width:84px;
+		background: #ff7619;
+		border: none;
+		color: #ffffff;
+		padding: 8px 24px;
+	}
+	.runButton:hover {
+		background: #cf5300;
+	}
+	</style>
+	<link rel="stylesheet" href="../jquery-ui.min.css">
+	<script src="../external/jquery/jquery.js"></script>
+	<script src="../jquery-ui.min.js"></script>
+	<script src="maps.js"></script>
+	<script src="maze_puzzle.js"></script>
+	<script src="scoring.js"></script>
+	<script src="blockly/blockly_compressed.js"></script>
+	<script src="blockly/blocks_compressed.js"></script>
+	<script src="blockly/msg/js/en.js"></script>
+	<script src="blockly/javascript_compressed.js"></script>
+	<script src="blockly/blocks/iterative_playground_blocks.js"></script>
+
+	<script>
+	var lo_keys = [	"simpleLinearProgram",
+	"singleInstructionInLoop",
+	"twoInstructionsInLoop",
+	"threeOrMoreInstructionsInLoop",
+	"simpleLoopsInSeries"];
+var thresholds = {
+	"simpleLinearProgram":{},
+	"singleInstructionInLoop":{"simpleLinearProgram":4},
+	"twoInstructionsInLoop":{"singleInstructionInLoop":4},
+	"threeOrMoreInstructionsInLoop":{"twoInstructionsInLoop":3},
+	"simpleLoopsInSeries":{"twoInstructionsInLoop":3}
+};
+	Blockly.Msg.LOOPS_HUE="#DC56B0"
+	String.prototype.replaceAll = function(searchString,replacementString) {
+		var target = this;
+		return target.replace(new RegExp(searchString,'g'),replacementString);
+	};
+	var learningObjectives = {
+	"simpleLinearProgram": {"friendlyName":"Create a simple linear program","generator":genSimpleLinearProgram},
+	"singleInstructionInLoop": {"friendlyName":"Create a loop with a single repeated instruction","generator":genSingleInstructionInLoop},
+	"twoInstructionsInLoop": {"friendlyName":"Create a loop with two repeated instructions where order matters","generator":genTwoInstructionsInLoop},
+	"threeOrMoreInstructionsInLoop": {"friendlyName":"Create a loop with three or more repeated instructions where order matters","generator":genThreeOrMoreInstructionsInLoop},
+	"simpleLoopsInSeries":{"friendlyName":"Create two single instruction loops in series","generator":genSimpleLoopsInSeries}
+	};
+	var userScores = {
+		"simpleLinearProgram":0,
+		"singleInstructionInLoop":0,
+		"twoInstructionsInLoop": 0,
+		"threeOrMoreInstructionsInLoop": 0,
+		"simpleLoopsInSeries": 0,
+	}
+
+
+function run() {
+	code = Blockly.JavaScript.workspaceToCode(workspace);
+	console.log(code);
+	genCode();
+}
+//NEED REFACTORING
+function generatePuzzle() {
+	var lines;
+	var problem;
+	var lo;
+	var toolboxString;
+	var options = selectViableObjectives(userScores,lo_keys);
+	var lo = chooseRandomObjectiveFromList(options,userScores);
+	console.log("generator for "+lo);
+	[problem,lines,toolboxString] = learningObjectives[lo]["generator"](userScores[lo]);
+	console.log(lo);
+	console.log("Using "+lines+" blocks");
+	$('#currentLO').text(learningObjectives[lo]["friendlyName"]);
+	if (workspace != undefined) {
+		workspace.updateToolbox(toolboxString)
+	}
+	//FACTOR THIS RENDERING OUT
+	$('#problemArea').text(problem);
+	return [problem,lines,lo];
+}
+function nextPuzzle() {
+	[problem, linesTarget,currentLO] = generatePuzzle();
+	$('#blockCount').text(linesTarget);
+	Blockly.mainWorkspace.clear();
+	updateDashboard();
+}
+function updateDashboard() {
+	var newStats = "";
+	for (var lo in userScores) {
+		if (userScores.hasOwnProperty(lo)) {
+			newStats+="<li>"+learningObjectives[lo]["friendlyName"]+": "+userScores[lo]+"</li>";
+		}
+	}
+	$('#proficiencyArea').html(newStats);
+}
+	</script>
+</head>
+<body>
+<div style='display:inline-block;vertical-align:top;margin-top:40px'><canvas id='playspace' width="320" height="320" style='background:#ffffff;'></canvas>
+<div><button class='runButton' onclick="run()">Run</button>
+	<button class='runButton' style='float:right' onclick="nextPuzzle()">Skip</button></div>
+	<div id='dashboardArea'>
+	<h1>Learning Dashboard</h1>
+	<div style='font-size:10px;color:#777777;margin-top:12px;'>Current Learning Objective: <span id='currentLO'></span>
+		<div>Your Proficiency Levels:
+			<ul id='proficiencyArea'></ul></div></div>
+	</div>
+	</div>
+<div id='workingArea'>	
+<div id="instructionContainer"><div id='instructionHeader'><h1>Help me find this duck using just <span id='blockCount'>2</span> blocks</span></h1></div>
+	<div id="blocklyDiv"></div>
+</div>
+
+<div id="dialog" title="Basic dialog">
+  <p id='dialogMessage'></p>
+</div>
+</body>
+</body>
+<script>
+	var collected = 0;
+	var code;
+	var lastProblem="";
+	var linesTarget = 0;
+	var currentLO;
+	var blockCountField = document.getElementById("blockCount");
+	var startToolboxStr = '<xml><block type="move_up"></block><block type="move_down"></block><block type="move_right"></block><block type="move_left"></block><block type="controls_repeat_ext"><value name="TIMES"><block type="math_number"><field name="NUM">4</field></block></value></block></xml>';
+	var workspace;
+	var failureSound = new Audio('failure_sound.mp3');
+	var winSound = new Audio('win_sound.mp3');
+	var improvingSound = new Audio('improving_sound.mp3');
+	var finishedSound = new Audio('finished_sound.mp3');
+	var startSound = new Audio('start_sound.mp3');
+	
+$(document).ready(function(){
+			startSound.play();
+			workspace = Blockly.inject('blocklyDiv',
+      		{toolbox: startToolboxStr});
+			$('#dialogMessage').html("<p>Thank goodness you're here! I'm Quackers. My job is to take care of all the rubber ducks. I was pretty good at it, but there was a solar flare and now my code is all scrambled! Can you help me find a path to all my ducks?</p><p>After we find a duck, the next one might be harder to get. Don't get discouraged! Remember, your brain is like a muscle - the  more you stretch it, the stronger it will get!</p><p>Drag blocks together to give me instructions. After you put the blocks together, click 'Run'</p>");
+			$( "#dialog" )
+			.dialog( {
+				title: "I need your help!",
+				hide: {
+					effect: "clip",
+					duration: 100
+				},
+				show: {
+					effect: "bounce",
+					duration: 500
+				},
+				modal: true,
+				width: 360,
+				buttons: {
+					Ok: function() {
+						$( this ).dialog( "close" );
+						}
+				},
+				open: function (event, ui) { 
+					$(".ui-dialog-titlebar").prepend("<img src='idle_avatar.png' id='avatar' />");
+				 },
+				close: function (event, ui) { 	 
+					nextPuzzle();
+				}})
+});
+
+
+	//NEED STANDARDIZING ACROSS APPS
+	function finish(result) {
+		if (result==100) {
+			updateScore(100);
+			winSound.play();
+			$( function() {
+				$('#dialogMessage').text("You've helped me find "+goalsFound+" duck"+(goalsFound==1 ? "" : "s")+" so far!");
+				$( "#dialog" )
+				.dialog( {
+					show: {
+						effect: "",
+						duration: 200
+					},
+					open: function (event, ui) { 
+						if ($("#avatar").length == 0) {
+							$(".ui-dialog-titlebar").prepend("<img src='win_avatar.png' id='avatar' />");
+						}
+						else {
+							$("#avatar").attr("src","win_avatar.png");
+						}	
+					},
+					close: function (event, ui) { updateDashboard(); nextPuzzle(); 
+					},
+					title: "We found it!"
+				} );
+			});
+		}
+		else if (result == 50) {
+			updateScore(50);
+			improvingSound.play();
+			$( function() {
+				$('#dialogMessage').text("We got the duck, but we used too many blocks. Can you find the pattern of repeated blocks?");
+				$( "#dialog" )
+				.dialog( {
+					show: {
+						effect: "",
+						duration: 200
+					},
+					open: function (event, ui) { 
+						if ($("#avatar").length == 0) {
+							$(".ui-dialog-titlebar").prepend("<img src='improving_avatar.png' id='avatar' />");
+						}
+						else {
+							$("#avatar").attr("src","improving_avatar.png");
+						}	
+					},
+					close: function (event, ui) { updateDashboard(); setup(); 
+					},
+					title: "You're getting close!"
+				} );
+			});
+		}
+		else {
+			updateScore(0);
+			failureSound.play();
+			$( function() {
+				$('#dialogMessage').text("Don't give up! Just try taking it one block at a time.");
+				$( "#dialog" )
+				.dialog( {
+					show: {
+						effect: "",
+						duration: 200
+					},
+					open: function (event, ui) { 
+						if ($("#avatar").length == 0) {
+							$(".ui-dialog-titlebar").prepend("<img src='failure_avatar.png' id='avatar' />");
+						}
+						else {
+							$("#avatar").attr("src","failure_avatar.png");
+						}	
+					},
+					close: function (event, ui) { updateDashboard(); setup(); 
+					},
+					title: "Not quite, keep coding!"
+				} );
+			});
+			//updateDashboard();
+			//setup();
+		}
+	}
+
+</script>
+</html>
