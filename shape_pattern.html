@@ -69,7 +69,7 @@
 	<script src="blockly/blocks_compressed.js"></script>
 	<script src="blockly/msg/js/en.js"></script>
 	<script src="blockly/javascript_compressed.js"></script>
-	<script src="blockly/blocks/iterative_playground_blocks.js"></script>
+	<script src="iterative_playground_blocks.js"></script>
 
 <script>
 var lo_keys = [	"simpleLinearProgram",
@@ -108,11 +108,11 @@ var linesTarget = 0;
 var currentLO;
 var startToolboxStr = '<xml><block type="put_circle"></block><block type="put_square"></block><block type="put_triangle"></block></xml>';
 var workspace;
-var failureSound = new Audio('failure_sound.mp3');
-var winSound = new Audio('win_sound.mp3');
-var improvingSound = new Audio('improving_sound.mp3');
-var finishedSound = new Audio('finished_sound.mp3');
-var startSound = new Audio('start_sound.mp3');
+var failureSound = new Audio('assets/failure_sound.mp3');
+var winSound = new Audio('assets/win_sound.mp3');
+var improvingSound = new Audio('assets/improving_sound.mp3');
+var finishedSound = new Audio('assets/finished_sound.mp3');
+var startSound = new Audio('assets/start_sound.mp3');
 
 
 //NEED REFACTORING
@@ -171,10 +171,10 @@ function finish(result) {
 				},
 				open: function (event, ui) { 
 					if ($("#avatar").length == 0) {
-						$(".ui-dialog-titlebar").prepend("<img src='improving_avatar.png' id='avatar' />");
+						$(".ui-dialog-titlebar").prepend("<img src='assets/improving_avatar.png' id='avatar' />");
 					}
 					else {
-						$("#avatar").attr("src","improving_avatar.png");
+						$("#avatar").attr("src","assets/improving_avatar.png");
 					}},
 				close: function (event, ui) { updateDashboard();},
 				title: "You're getting close!"
@@ -192,10 +192,10 @@ function finish(result) {
 				},
 				open: function (event, ui) { 
 					if ($("#avatar").length == 0) {
-						$(".ui-dialog-titlebar").prepend("<img src='win_avatar.png' id='avatar' />");
+						$(".ui-dialog-titlebar").prepend("<img src='assets/win_avatar.png' id='avatar' />");
 					}
 					else {
-						$("#avatar").attr("src","win_avatar.png");
+						$("#avatar").attr("src","assets/win_avatar.png");
 					}	
 				},
 				close: function (event, ui) { updateDashboard(); nextPuzzle(); },
@@ -214,10 +214,10 @@ function finish(result) {
 					},
 					open: function (event, ui) { 
 						if ($("#avatar").length == 0) {
-							$(".ui-dialog-titlebar").prepend("<img src='failure_avatar.png' id='avatar' />");
+							$(".ui-dialog-titlebar").prepend("<img src='fassets/ailure_avatar.png' id='avatar' />");
 						}
 						else {
-							$("#avatar").attr("src","failure_avatar.png");
+							$("#avatar").attr("src","assets/failure_avatar.png");
 						}	
 					 },
 					close: function (event, ui) { updateDashboard();  },
@@ -270,7 +270,7 @@ $(document).ready(function(){
 						}
 				},
 				open: function (event, ui) { 
-					$(".ui-dialog-titlebar").prepend("<img src='idle_avatar.png' id='avatar' />");
+					$(".ui-dialog-titlebar").prepend("<img src='assets/idle_avatar.png' id='avatar' />");
 				 },
 				close: function (event, ui) { 	 
 					nextPuzzle();

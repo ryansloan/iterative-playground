@@ -178,14 +178,14 @@ function prepCanvas() {
 	heroImage = new Image();
 	obstacleImage = new Image();
 	obstacleImage2 = new Image();
-	heroImage.src = "idle_avatar.png";
+	heroImage.src = "assets/idle_avatar.png";
 	heroImage.onload = function() {
-		obstacleImage.src = "crate_gray.png";
+		obstacleImage.src = "assets/crate_gray.png";
 		obstacleImage.onload = function() {
-			obstacleImage2.src = "crate_blue.png";
+			obstacleImage2.src = "assets/crate_blue.png";
 			obstacleImage2.onload = function () {
 				goalImage = new Image();
-				goalImage.src = "duck.png";
+				goalImage.src = "assets/duck.png";
 				goalImage.onload = function() {
 					renderMap();
 				}

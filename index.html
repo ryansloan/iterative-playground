@@ -171,11 +171,11 @@ function updateDashboard() {
 	var blockCountField = document.getElementById("blockCount");
 	var startToolboxStr = '<xml><block type="move_up"></block><block type="move_down"></block><block type="move_right"></block><block type="move_left"></block><block type="controls_repeat_ext"><value name="TIMES"><block type="math_number"><field name="NUM">4</field></block></value></block></xml>';
 	var workspace;
-	var failureSound = new Audio('failure_sound.mp3');
-	var winSound = new Audio('win_sound.mp3');
-	var improvingSound = new Audio('improving_sound.mp3');
-	var finishedSound = new Audio('finished_sound.mp3');
-	var startSound = new Audio('start_sound.mp3');
+	var failureSound = new Audio('assets/failure_sound.mp3');
+	var winSound = new Audio('assets/win_sound.mp3');
+	var improvingSound = new Audio('assets/improving_sound.mp3');
+	var finishedSound = new Audio('assets/finished_sound.mp3');
+	var startSound = new Audio('assets/start_sound.mp3');
 	
 $(document).ready(function(){
 			startSound.play();
@@ -201,7 +201,7 @@ $(document).ready(function(){
 						}
 				},
 				open: function (event, ui) { 
-					$(".ui-dialog-titlebar").prepend("<img src='idle_avatar.png' id='avatar' />");
+					$(".ui-dialog-titlebar").prepend("<img src='assets/idle_avatar.png' id='avatar' />");
 				 },
 				close: function (event, ui) { 	 
 					nextPuzzle();
@@ -224,10 +224,10 @@ $(document).ready(function(){
 					},
 					open: function (event, ui) { 
 						if ($("#avatar").length == 0) {
-							$(".ui-dialog-titlebar").prepend("<img src='win_avatar.png' id='avatar' />");
+							$(".ui-dialog-titlebar").prepend("<img src='assets/win_avatar.png' id='avatar' />");
 						}
 						else {
-							$("#avatar").attr("src","win_avatar.png");
+							$("#avatar").attr("src","assets/win_avatar.png");
 						}	
 					},
 					close: function (event, ui) { updateDashboard(); nextPuzzle(); 
@@ -249,10 +249,10 @@ $(document).ready(function(){
 					},
 					open: function (event, ui) { 
 						if ($("#avatar").length == 0) {
-							$(".ui-dialog-titlebar").prepend("<img src='improving_avatar.png' id='avatar' />");
+							$(".ui-dialog-titlebar").prepend("<img src='assets/improving_avatar.png' id='avatar' />");
 						}
 						else {
-							$("#avatar").attr("src","improving_avatar.png");
+							$("#avatar").attr("src","assets/improving_avatar.png");
 						}	
 					},
 					close: function (event, ui) { updateDashboard(); setup(); 
@@ -274,10 +274,10 @@ $(document).ready(function(){
 					},
 					open: function (event, ui) { 
 						if ($("#avatar").length == 0) {
-							$(".ui-dialog-titlebar").prepend("<img src='failure_avatar.png' id='avatar' />");
+							$(".ui-dialog-titlebar").prepend("<img src='assets/failure_avatar.png' id='avatar' />");
 						}
 						else {
-							$("#avatar").attr("src","failure_avatar.png");
+							$("#avatar").attr("src","assets/failure_avatar.png");
 						}	
 					},
 					close: function (event, ui) { updateDashboard(); setup(); 
