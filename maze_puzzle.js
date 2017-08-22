@@ -77,7 +77,7 @@ function genThreeOrMoreInstructionsInLoop() {
 }
 
 function genSimpleLoopsInSeries() {
-	var mapOptions=[1,12,13];
+	var mapOptions=[1,12,13,21];
 	return setupNewPuzzle(mapOptions);
 }
 
